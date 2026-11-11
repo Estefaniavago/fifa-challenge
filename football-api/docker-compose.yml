@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306" # Make sure it is the same port as DB_PORT in your .env file'
+      - "3307:3306" # Make sure it is the same port as DB_PORT in your .env file'
     volumes:
       - db_data:/var/lib/mysql
       - ./docker/db:/docker-entrypoint-initdb.d 

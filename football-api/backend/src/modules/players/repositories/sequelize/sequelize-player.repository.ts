@@ -1,6 +1,7 @@
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { PlayerModel } from './player.model'; // Sequelize model
+import { PlayerModel } from './player.model';
 import { IPlayerRepository } from '../../interfaces/player-repository.interface';
 import { Player } from '../../entities/player.entity';
 
@@ -18,28 +19,41 @@ export class SequelizePlayerRepository implements IPlayerRepository {
 
   async findOneById(id: number): Promise<Player | undefined> {
     const model = await this.playerModel.findByPk(id);
+
     if (!model) {
       return undefined;
     }
+
     return this.mapToEntity(model);
   }
 
+  private fixMojibake(value: string): string {
+    if (!/[ÃÂ]/.test(value)) {
+      return value;
+    }
+
+    const corrected = Buffer.from(value, 'latin1').toString('utf8');
+
+    return corrected.includes('\uFFFD') ? value : corrected;
+  }
+
   private mapToEntity(model: PlayerModel): Player {
-    console.log('Mapping PlayerModel to Player entity:', model);
     if (!model) {
       throw new Error('Attempted to map null model to Player entity');
     }
+
     const player = new Player();
     player.id = model.id;
-    player.name = model.longName;
+    player.name = this.fixMojibake(model.longName);
     player.club = model.clubName || 'Unknown Club';
     player.position = model.playerPositions?.split(',')[0].trim() ?? 'Unknown';
     player.nationality = model.nationalityName || 'Unknown Nationality';
     player.rating = model.overall;
-    player.speed = model.pace ?? 0;
-    player.shooting = model.shooting ?? 0;
-    player.dribbling = model.dribbling ?? 0;
-    player.passing = model.passing ?? 0;
+
+    player.speed = model.dataValues.pace ?? 0;
+    player.shooting = model.dataValues.shooting ?? 0;
+    player.dribbling = model.dataValues.dribbling ?? 0;
+    player.passing = model.dataValues.passing ?? 0;
 
     return player;
   }

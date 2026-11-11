@@ -1,0 +1,21 @@
+﻿# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Archivos generados
+dist/
+**/dist/
+coverage/
+
+# Logs
+*.log
+
+# Archivos del sistema y editor
+.DS_Store
+Thumbs.db
+.vscode/
