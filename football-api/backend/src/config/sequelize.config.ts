@@ -13,7 +13,7 @@ const sequelizeConfig: SequelizeModuleOptions = {
     charset: 'utf8mb4',
     collate: 'utf8mb4_0900_ai_ci',
   },
-  host: process.env.DB_HOST === 'mysql_db' ? 'localhost' : process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306', 10),
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
