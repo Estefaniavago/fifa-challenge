@@ -2,6 +2,7 @@
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
 import * as dotenv from 'dotenv';
 import { PlayerModel } from '../modules/players/repositories/sequelize/player.model';
+import { UserModel } from '../modules/users/repositories/sequelize/user.model';
 dotenv.config({ path: '../.env' });
 
 const sequelizeConfig: SequelizeModuleOptions = {
@@ -18,7 +19,7 @@ const sequelizeConfig: SequelizeModuleOptions = {
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'test',
-  models: [PlayerModel],
+  models: [PlayerModel, UserModel],
   autoLoadModels: true,
   synchronize: false,
   logging: console.log,

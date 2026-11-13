@@ -2,6 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IPlayerRepository } from './interfaces/player-repository.interface';
 import { Player } from './entities/player.entity';
 
+import {
+  PlayerFilters,
+  PaginatedPlayers,
+} from './interfaces/player-repository.interface';
+
 @Injectable()
 export class PlayersService {
   constructor(
@@ -12,4 +17,7 @@ export class PlayersService {
   getPlayerById(id: number): Promise<Player | undefined> {
     return this.playerRepository.findOneById(id);
   }
+  listPlayers(filters: PlayerFilters): Promise<PaginatedPlayers> {
+  return this.playerRepository.findAll(filters);
+}
 }

@@ -4,6 +4,12 @@ import { InjectModel } from '@nestjs/sequelize';
 import { PlayerModel } from './player.model';
 import { IPlayerRepository } from '../../interfaces/player-repository.interface';
 import { Player } from '../../entities/player.entity';
+import { Op } from 'sequelize';
+import {
+  PlayerFilters,
+  PaginatedPlayers,
+} from '../../interfaces/player-repository.interface';
+import { CreationAttributes } from 'sequelize';
 
 @Injectable()
 export class SequelizePlayerRepository implements IPlayerRepository {
@@ -12,10 +18,35 @@ export class SequelizePlayerRepository implements IPlayerRepository {
     private readonly playerModel: typeof PlayerModel,
   ) {}
 
-  async findAll(): Promise<Player[]> {
-    const playerList = await this.playerModel.findAll();
-    return playerList.map((x) => this.mapToEntity(x));
+ async findAll(filters: PlayerFilters): Promise<PaginatedPlayers> {
+  const { page, limit, name, club, position } = filters;
+
+  const where: any = {};
+
+  if (name) {
+    where.longName = { [Op.like]: `%${name}%` };
   }
+
+  if (club) {
+    where.clubName = { [Op.like]: `%${club}%` };
+  }
+
+  if (position) {
+    where.playerPositions = { [Op.like]: `%${position}%` };
+  }
+
+  const { rows, count } = await this.playerModel.findAndCountAll({
+    where,
+    limit,
+    offset: (page - 1) * limit,
+    order: [['id', 'ASC']],
+  });
+
+  return {
+    data: rows.map((player) => this.mapToEntity(player)),
+    total: count,
+  };
+}
 
   async findOneById(id: number): Promise<Player | undefined> {
     const model = await this.playerModel.findByPk(id);
@@ -26,6 +57,13 @@ export class SequelizePlayerRepository implements IPlayerRepository {
 
     return this.mapToEntity(model);
   }
+async create(
+  data: CreationAttributes<PlayerModel>,
+): Promise<Player> {
+  const created = await this.playerModel.create(data);
+
+  return this.mapToEntity(created);
+}
 
   private fixMojibake(value: string): string {
     if (!/[ÃÂ]/.test(value)) {
